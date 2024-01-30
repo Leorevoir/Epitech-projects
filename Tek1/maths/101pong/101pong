@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+##
+## EPITECH PROJECT, 2023
+## 101PONG
+## File description:
+## makes 101pong project
+##
+
+import math, sys
+
+if __name__ == '__main__':
+    arguments = sys.argv
+
+# handling errors
+if len(sys.argv) > 8:
+    print ("Too much arguments", sep='', file=sys.stderr)
+    sys.exit(84)
+if len(sys.argv) < 8:
+    print ("Too few arguments", sep='', file=sys.stderr)
+    sys.exit(84)
+
+for i in range(1, len(arguments)):
+    try:
+        (float)(arguments[i])
+    except ValueError:
+        print ("You have to put numbers", sep='', file=sys.stderr)
+        sys.exit(84)
+
+try:
+    (int)(arguments[7])
+except ValueError:
+    print ("n have to be an integer", sep='', file=sys.stderr)
+    sys.exit(84)
+if (int)(arguments[7]) < 0:
+    print ("n have to be positive", sep='', file=sys.stderr)
+    sys.exit(84)
+
+# put variables from argv intothe program
+x0: float = (float)(arguments[1])
+y0: float = (float)(arguments[2])
+z0: float = (float)(arguments[3])
+x1: float = (float)(arguments[4])
+y1: float = (float)(arguments[5])
+z1: float = (float)(arguments[6])
+n: int = (int)(arguments[7])
+
+# make var vector and his coordinates
+vector = (x1 - x0, y1 - y0, z1 - z0)
+x: float = vector[0]
+y: float = vector[1]
+z: float = vector[2]
+
+    # _____\/ fcts that will be used \/_____
+
+# fct that sees if the ball will hit the bat
+def will_hit_bat(x, z, x1, z1):
+    if z == 0:
+        return False
+    if x != 0 and ((-z1) / z) >= 0 and x1 != 0:
+        return True
+    return False
+
+# fct that check the next pos of the ball
+def pos_ball(x1, y1, z1, n):
+    posN = (x1 + (n * x),
+            y1 + (n * y),
+            z1 + (n * z)
+            )
+    return (posN)
+
+# _____\/ fcts to calc the angle \/________
+
+# fct that calc the angle
+def angle(vector):
+    normVector = norm_vector(vector)
+    if vector[2] / normVector > 1 or vector[2] / normVector < -1:
+        print ("Unable to calculate arccos", sep='', file=sys.stderr)
+        sys.exit(84);
+    arccos = math.acos(vector[2] / normVector)
+    angle = round(180 *(arccos - (math.pi/2)) / math.pi, 2)
+    angle = abs(angle)
+    return (angle)
+
+# fct that calc the vector
+def norm_vector(vector):
+    xvector = vector[0]
+    yvector = vector[1]
+    zvector = vector[2]
+    return (math.sqrt(xvector**2 + yvector**2 + zvector**2))
+
+# _________________________________________
+
+    # _____________________________________
+
+    # _____\/ PRINT \/_____________________
+
+# print coordinate velocity vector
+print("The velocity vector of the ball is:\n(",
+      format(vector[0], ".2f"),
+      ', ',
+      format(vector[1], ".2f"),
+      ', ',
+      format(vector[2], ".2f"),
+      ')',
+      sep='')
+
+# print coordinate t + n
+tn = pos_ball(x1, y1, z1, n)
+print("At time t + ", (int)(n), ", ball coordinates will be:\n(",
+      format(tn[0], ".2f"),
+      ', ',
+      format(tn[1], ".2f"),
+      ', ',
+      format(tn[2], ".2f"),
+      ')',
+      sep='')
+
+# print incidence angle... or not
+if will_hit_bat(x, z, x1, z1):
+    angle = angle(vector)
+    print("The incidence angle is:\n", f"{angle:.2f}", " degrees", sep='')
+else:
+    print("The ball won't reach the paddle.", sep='')
+
+    # ______________________________________

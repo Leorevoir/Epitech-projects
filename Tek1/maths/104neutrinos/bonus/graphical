@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+##
+## EPITECH PROJECT, 2024
+## B-MAT-100-STG-1-1-104neutrinos-raphael.petrequin
+## File description:
+## graphical
+##
+
+import tkinter as tk
+import math
+
+# Function to update the arithmetic mean with a new value
+def update_mean(old_mean, new_value, n):
+    return (old_mean * n + new_value) / (n + 1)
+
+# Function to update the harmonic mean with a new value
+def update_harmonic_mean(old_hmean, new_value, n):
+    if new_value == 0:
+        return 0
+    return (n + 1) / (n / old_hmean + 1 / new_value)
+
+# Function to update the standard deviation with a new value
+def update_standard_deviation(old_sd, old_mean, new_mean, new_value, n):
+    return math.sqrt((n * (old_sd**2 + (old_mean - new_mean)**2) + (new_value - new_mean)**2) / (n + 1))
+
+# Function to calculate the root mean square
+def root_mean_square(sd, a):
+    rms = sd**2 + a**2
+    return math.sqrt(rms)
+
+# Function to initialize the values from user input
+def initialize_values():
+    try:
+        global n, a, h, sd
+        n = int(entry_n.get())
+        a = float(entry_a.get())
+        h = float(entry_h.get())
+        sd = float(entry_sd.get())
+        # Disabling the initial value entries once initialized
+        entry_n.config(state='disabled')
+        entry_a.config(state='disabled')
+        entry_h.config(state='disabled')
+        entry_sd.config(state='disabled')
+        initialize_button.config(state='disabled')
+        new_value_label.config(text="Enter the next value:")
+    except ValueError:
+        result_label.config(text="Error: Invalid initial entries")
+
+# Function to calculate and update values on new value input
+def calculate():
+    try:
+        new_value = float(entry_new_value.get())
+
+        global n, a, h, sd
+        n += 1
+        a = update_mean(a, new_value, n - 1)
+        h = update_harmonic_mean(h, new_value, n - 1)
+        sd = update_standard_deviation(sd, a, update_mean(a, new_value, n), new_value, n - 1)
+        rms = root_mean_square(sd, a)
+
+        # Updating the result label with new calculations
+        result_label.config(text=f"Results:\nNumber of values:\t{n}\nStandard deviation:\t{sd:.2f}\nArithmetic mean:\t{a:.2f}\nRoot mean square:\t{rms:.2f}\nHarmonic mean:\t{h:.2f}")
+        entry_new_value.delete(0, tk.END) # Clearing the entry field after calculation
+    except ValueError:
+        result_label.config(text="Error: Invalid entry")
+
+# Setting up the main window
+root = tk.Tk()
+root.title("Neutrinos Project")
+
+# Global variables to hold the statistical values
+n, a, h, sd = 0, 0, 0, 0
+
+# Creating and placing the input fields and their labels
+tk.Label(root, text="Number of values (n):").pack()
+entry_n = tk.Entry(root)
+entry_n.pack()
+
+tk.Label(root, text="Arithmetic mean (a):").pack()
+entry_a = tk.Entry(root)
+entry_a.pack()
+
+tk.Label(root, text="Harmonic mean (h):").pack()
+entry_h = tk.Entry(root)
+entry_h.pack()
+
+tk.Label(root, text="Standard deviation (sd):").pack()
+entry_sd = tk.Entry(root)
+entry_sd.pack()
+
+# Button to initialize values
+initialize_button = tk.Button(root, text="Initialize Values", command=initialize_values)
+initialize_button.pack()
+
+# Label and entry field for new value input
+new_value_label = tk.Label(root, text="Enter initial values above")
+new_value_label.pack()
+
+entry_new_value = tk.Entry(root)
+entry_new_value.pack()
+
+# Button to calculate with new value
+calculate_button = tk.Button(root, text="Calculate", command=calculate)
+calculate_button.pack()
+
+# Label to display results
+result_label = tk.Label(root, text="Results will be displayed here")
+result_label.pack()
+
+# Starting the GUI event loop
+root.mainloop()

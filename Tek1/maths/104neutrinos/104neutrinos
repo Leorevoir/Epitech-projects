@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+##
+## EPITECH PROJECT, 2023
+## B-MAT-100-STG-1-1-104neutrinos-raphael.petrequin
+## File description:
+## 104neutrinos
+##
+
+import math, sys
+
+def usage():
+    print("USAGE", sep="")
+    print("    ./104neutrinos n a h sd\n", sep="")
+    print("DESCRIPTION", sep="")
+    print("    n\t    number of values", sep="")
+    print("    a\t    arithmetic mean", sep="")
+    print("    h\t    harmonic mean", sep="")
+    print("    sd\t    standard deviation", sep="")
+
+def print_statistics(n, a, sd, rms, h):
+    print(f"    Number of values:\t{n}")
+    print(f"    Standard deviation:\t{sd:.2f}")
+    print(f"    Arithmetic mean:\t{a:.2f}")
+    print(f"    Root mean square:\t{rms:.2f}")
+    print(f"    Harmonic mean:\t{h:.2f}\n")
+
+def parse_arguments():
+    if len(sys.argv) == 2 and sys.argv[1] == "-h":
+        usage()
+        sys.exit(0)
+    if len(sys.argv) < 5:
+        print("Too few arguments", sep="", file=sys.stderr)
+        sys.exit(84)
+    if len(sys.argv) > 5:
+        print("Too much arguments", sep="", file=sys.stderr)
+        sys.exit(84)
+    if sys.argv[1][0] == '-':
+        sys.exit(84)
+    try:
+        return int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4])
+    except ValueError:
+        print("you fool... You HAVE to put INTEGERS", sep="", file=sys.stderr)
+        sys.exit(84)
+
+def update_mean(old_mean, new_value, n):
+    return (old_mean * n + new_value) / (n + 1)
+
+def update_harmonic_mean(old_hmean, new_value, n):
+    if new_value == 0:
+        return 0
+    return (n + 1) / (n / old_hmean + 1 / new_value)
+
+def update_standard_deviation(old_sd, old_mean, new_mean, new_value, n):
+    return math.sqrt((n * (old_sd**2 + (old_mean - new_mean)**2) + (new_value - new_mean)**2) / (n + 1))
+
+def root_mean_square(sd, a):
+    rms = sd**2 + a**2
+    return math.sqrt(rms)
+
+def main():
+    n, a, h, sd = parse_arguments()
+    while True:
+        new_value = input("Enter next value: ")
+        if new_value == "END":
+            break
+        try:
+            new_value = float(new_value)
+        except ValueError:
+            print("you fool... You HAVE to put INTEGERS (or END)", sep="", file=sys.stderr)
+            continue
+        n += 1
+        new_a = update_mean(a, new_value, n - 1)
+        new_h = update_harmonic_mean(h, new_value, n - 1)
+        new_sd = update_standard_deviation(sd, a, new_a, new_value, n - 1)
+        rms = root_mean_square(new_sd, new_a)
+        a, h, sd = new_a, new_h, new_sd
+        print_statistics(n, a, sd, rms, h)
+
+if __name__ == "__main__":
+    main()

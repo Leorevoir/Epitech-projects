@@ -1,0 +1,203 @@
+#!/usr/bin/env python3
+##
+## EPITECH PROJECT, 2024
+## B-MAT-100-STG-1-1-105demography-raphael.petrequin
+## File description:
+## 105demography
+##
+
+import sys, csv
+
+#__________PRINTS____________________________________________________________
+
+def usage():
+    print("USAGE")
+    print("    ./105demography [code]+")
+    print("\nDESCRIPTION")
+    print("    code    country code")
+
+def print_stats(country_name, aX, bX, rmsd, prediction_2050):
+    print(f"Country: {', '.join(country_name)}")
+    print(f"Fit1\n    Y = {aX:.2f} X - {bX:.2f}")
+    print(f"    Root-mean-square deviation: {rmsd:.2f}")
+    print(f"    Population in 2050: {prediction_2050:.2f}")
+
+def print_stats2(aY, bY, rmsd, prediction_2050, pearson):
+    print(f"Fit2\n    X = {aY:.2f} Y + {bY:.2f}")
+    print(f"    Root-mean-square deviation: {rmsd:.2f}")
+    print(f"    Population in 2050: {prediction_2050:.2f}")
+    print(f"Correlation: {pearson:.4f}")
+
+#__________READ______________________________________________________________
+
+def parse_arguments():
+    if len(sys.argv) == 2 and sys.argv[1] == "-h":
+        usage()
+        sys.exit(0)
+    if len(sys.argv) < 2:
+        print("Too few arguments", file=sys.stderr)
+        sys.exit(84)
+    return sys.argv[1:]
+
+def read_file(file_path, country_codes):
+    demography = {}
+
+    with open(file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=';')
+
+        for row in reader:
+            country_code = row['Country Code']
+
+            if country_code in country_codes:
+                demography[country_code] = row
+    return demography
+
+#__________EXTRACT___________________________________________________________
+
+def extract_data(demography_data):
+    data = {}
+
+    for key, value in demography_data.items():
+        if key.isdigit() and value != '':
+            data[int(key)] = int(value)
+    return data
+
+def get_country_name(demography):
+    country_name = [data['Country Name']
+                    for code, data in demography.items()]
+    return country_name
+
+#__________CALCULATE_________________________________________________________
+
+def calculate_rmsd(targets, predictions):
+    n = len(predictions)
+    squared_diff_sum = 0
+
+    for i in range(n):
+        squared_diff = (predictions[i] - targets[i]) ** 2
+        squared_diff_sum += squared_diff
+
+    mean_squared_error = squared_diff_sum / n
+    rmse = mean_squared_error ** 0.5
+    return rmse
+
+def calculate_linear_regression(x, y):
+    n = len(x)
+
+    sum_x = sum(x)
+    sum_y = sum(y)
+    sum_xy = sum(x_i * y_i for x_i, y_i in zip(x, y))
+    sum_x2 = sum(x_i ** 2 for x_i in x)
+
+    mean_x = sum_x / n
+    mean_y = sum_y / n
+
+    aX = (sum_xy - n * mean_x * mean_y) / (sum_x2 - n * mean_x ** 2)
+    bX = mean_y - aX * mean_x
+    return aX, bX
+
+def calculate_data(combined_years, combined_populations, aX, bX):
+    y_predicted = [aX * x + bX for x in combined_years]
+    rmsd = calculate_rmsd(combined_populations, y_predicted)
+    prediction_2050 = aX * 2050 + bX
+    return rmsd, prediction_2050
+
+def calculate_data_fit2(combined_years, combined_populations, aY, bY):
+    y_predicted = [(x - bY) / aY for x in combined_years]
+    rmsd = calculate_rmsd(combined_populations, y_predicted)
+    rmsd /= 1000000
+    prediction_2050 = (2050 - bY) / aY
+    return rmsd, prediction_2050
+
+def calculate_pearson_correlation(x, y):
+    n = len(x)
+    sum_x = sum(x)
+    sum_y = sum(y)
+    sum_xy = sum(x_i * y_i for x_i, y_i in zip(x, y))
+    sum_x2 = sum(x_i ** 2 for x_i in x)
+    sum_y2 = sum(y_i ** 2 for y_i in y)
+
+    numerator = n * sum_xy - sum_x * sum_y
+    denominator = ((n * sum_x2 - sum_x ** 2) * (n * sum_y2 - sum_y ** 2)) ** 0.5
+
+    if denominator == 0:
+        return 0
+
+    return numerator / denominator
+
+#__________COMBINE___________________________________________________________
+
+def combine_country_data(demography):
+    combined_data = {}
+
+    for country_code, data in demography.items():
+        country_data = extract_data(data)
+
+        for year, population in country_data.items():
+            if year in combined_data:
+                combined_data[year] += population
+            else:
+                combined_data[year] = population
+    return combined_data
+
+def combine_data(demography):
+    combined_data = combine_country_data(demography)
+    combined_years = sorted(combined_data.keys())
+    combined_populations = [combined_data[year] for year in combined_years]
+    return combined_years, combined_populations
+
+#__________FORMAT____________________________________________________________
+
+def data_is_negative(aX, bX):
+    if aX < 0:
+        aX = -aX
+    if bX < 0:
+        bX = -bX
+    return aX, bX
+
+def data_format(aX, bX, prediction_2050, rmsd):
+    aX, bX = data_is_negative(aX, bX)
+
+    aX /= 1000000
+    bX /= 1000000
+    rmsd /= 1000000
+    prediction_2050 /= 1000000
+    return aX, bX, prediction_2050, rmsd
+
+def data_format_fit2(aX, bX, prediction_2050, rmsd):
+    aX, bX = data_is_negative(aX, bX)
+
+    aX *= 1000000
+    prediction_2050 /= 1000000
+    return aX, bX, prediction_2050, rmsd
+
+#__________MAIN______________________________________________________________
+
+def main():
+    country_codes = parse_arguments()
+    file_path = '105demography_data.csv'
+    try:
+        demography = read_file(file_path, country_codes)
+    except FileNotFoundError:
+        print(f"Error: Unable to open or find the file '{file_path}'", file=sys.stderr)
+        sys.exit(84)
+
+    if len(demography) != (len(sys.argv) - 1):
+        print(f"A country code is wrong")
+        sys.exit(84)
+    else:
+        combined_years, combined_populations = combine_data(demography)
+        aX, bX = calculate_linear_regression(combined_years, combined_populations)
+        rmsd, prediction_2050 = calculate_data(combined_years, combined_populations, aX, bX)
+        country_names = get_country_name(demography)
+        aX, bX, prediction_2050, rmsd = data_format(aX, bX, prediction_2050, rmsd)
+        print_stats(country_names, aX, bX, rmsd, prediction_2050)
+
+        aY, bY = calculate_linear_regression(combined_populations, combined_years)
+        rmsd, prediction_2050 = calculate_data_fit2(combined_years, combined_populations, aY, bY)
+        aY, bY, prediction_2050, rmsd = data_format_fit2(aY, bY, prediction_2050, rmsd)
+        pearson = calculate_pearson_correlation(combined_years, combined_populations)
+        print_stats2(aY, bY, rmsd, prediction_2050, pearson)
+
+if __name__ == "__main__":
+    main()

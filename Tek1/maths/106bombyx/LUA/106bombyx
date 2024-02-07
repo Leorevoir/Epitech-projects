@@ -1,0 +1,133 @@
+#!/usr/bin/env lua
+--
+-- EPITECH PROJECT, 2024
+-- 106bombyx
+-- File description:
+-- 106bombyx
+--
+
+
+local function usage()
+    print("USAGE")
+    print("    ./106bombyx n [k | i0 i1]")
+    print("\nDESCRIPTION")
+    print("    n      number of first generation individuals")
+    print("    k      growth rate from 1 to 4")
+    print("    i0     initial generation (included)")
+    print("    i1     final generation (included)")
+    os.exit(0)
+end
+
+
+-------// calculate population //-----
+
+local function calculate_population(n, k, i0, i1)
+    local populations = {n}
+    for i = 1, i1 do
+        local x_i = populations[#populations]
+        local x_next = k * x_i * (1 - x_i / 1000)
+        table.insert(populations, x_next)
+    end
+    return {table.unpack(populations, i0, i1)}
+end
+
+local function print_population(n, k, i0, i1)
+    local populations = calculate_population(n, k, i0, i1)
+    for generation, population in ipairs(populations) do
+        print(string.format("%d %.2f", generation + i0 - 1, population))
+    end
+end
+
+-------// calculate range //-----
+
+local function print_range(populations, k)
+    for _, population in ipairs(populations) do
+        print(string.format("%.2f %.2f", k / 100.0, population))
+    end
+end
+
+local function calculate_for_range(n, i0, i1)
+    for k = 100, 400 do
+        local populations = calculate_population(n, k / 100.0, i0, i1)
+        print_range(populations, k)
+    end
+end
+
+
+-------// parse arguments //-----
+
+local function parse_three(args)
+    local n = tonumber(args[1])
+    local i0 = tonumber(args[2])
+    local i1 = tonumber(args[3])
+
+    if not (n and i0 and i1) then
+        io.stderr:write("Wrong values\n")
+        io.stderr:write("Try making: ./106bombyx -h\n")
+        os.exit(84)
+    end
+
+    return n, i0, i1
+end
+
+local function parse_two(args)
+    local n = tonumber(args[1])
+    local k_str = args[2]
+    local k = tonumber(k_str)
+
+    local n_is_integer = n and math.floor(n) == n
+
+    local k_is_float = k_str:find("%.") ~= nil
+
+    if not (n_is_integer and k_is_float) then
+        io.stderr:write("Wrong values. 'n' must be an integer and 'k' must be a float.\n")
+        io.stderr:write("Try making: ./106bombyx -h\n")
+        os.exit(84)
+    end
+
+    return n, k
+end
+
+
+-------// error handling //-----
+
+local function error(args, nargs)
+    if nargs == 1 and args[1] ~= "-h" then
+        io.stderr:write("Wrong flag\n")
+
+    elseif nargs < 2 then
+        io.stderr:write("Too few arguments\n")
+
+    elseif nargs > 4 then
+        io.stderr:write("Too much arguments\n")
+    end
+
+    io.stderr:write("Try making: ./106bombyx -h\n")
+    os.exit(84)
+end
+
+
+-------// main function //-------
+
+local function main()
+    local args = {table.unpack(arg)}
+    local nargs = #args
+
+    if nargs == 1 and args[1] == "-h" then
+        usage()
+
+    elseif nargs == 2 then
+        local n, k = parse_two(args)
+        print_population(n, k, 1, 100)
+
+    elseif nargs == 3 then
+        local n, i0, i1 = parse_three(args)
+        calculate_for_range(n, i0, i1)
+
+    else
+        error(args, nargs)
+    end
+end
+
+
+main()

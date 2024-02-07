@@ -1,125 +1,96 @@
 #!/usr/bin/env python3
 ##
-## EPITECH PROJECT, 2023
-## 101PONG
+## EPITECH PROJECT, 2024
+## maths
 ## File description:
-## makes 101pong project
+## new_pong
 ##
 
 import math, sys
 
-if __name__ == '__main__':
-    arguments = sys.argv
 
-# handling errors
-if len(sys.argv) > 8:
-    print ("Too much arguments", sep='', file=sys.stderr)
-    sys.exit(84)
-if len(sys.argv) < 8:
-    print ("Too few arguments", sep='', file=sys.stderr)
-    sys.exit(84)
+def usage():
+    print("USAGE")
+    print("    ./101pong x0 y0 z0 x1 y1 z1 n")
+    print("DESCRIPTION")
+    print("    x0 ball abscissa at time t - 1")
+    print("    y0 ball ordinate at time t - 1")
+    print("    z0 ball altitude at time t - 1")
+    print("    x1 ball abscissa at time t")
+    print("    y1 ball ordinate at time t")
+    print("    z1 ball altitude at time t")
+    print("    n time shift (greater than or equal to zero, integer")
+    sys.exit(0)
 
-for i in range(1, len(arguments)):
-    try:
-        (float)(arguments[i])
-    except ValueError:
-        print ("You have to put numbers", sep='', file=sys.stderr)
+
+def parse_arguments():
+    if len(sys.argv) == 2 and sys.argv[1] == "-h":
+        usage()
+    if len(sys.argv) != 8:
+        usage()
         sys.exit(84)
 
-try:
-    (int)(arguments[7])
-except ValueError:
-    print ("n have to be an integer", sep='', file=sys.stderr)
-    sys.exit(84)
-if (int)(arguments[7]) < 0:
-    print ("n have to be positive", sep='', file=sys.stderr)
-    sys.exit(84)
+    try:
+        coordinates = [float(arg) for arg in sys.argv[1:7]]
+        n = int(sys.argv[7])
+        if n < 0:
+            raise ValueError
+    except ValueError:
+        print("Invalid input: coordinates must be floats and n must be a non-negative integer.", file=sys.stderr)
+        sys.exit(84)
+    
+    return coordinates, n
 
-# put variables from argv intothe program
-x0: float = (float)(arguments[1])
-y0: float = (float)(arguments[2])
-z0: float = (float)(arguments[3])
-x1: float = (float)(arguments[4])
-y1: float = (float)(arguments[5])
-z1: float = (float)(arguments[6])
-n: int = (int)(arguments[7])
 
-# make var vector and his coordinates
-vector = (x1 - x0, y1 - y0, z1 - z0)
-x: float = vector[0]
-y: float = vector[1]
-z: float = vector[2]
+def compute_vector(x0, y0, z0, x1, y1, z1):
+    return x1 - x0, y1 - y0, z1 - z0
 
-    # _____\/ fcts that will be used \/_____
 
-# fct that sees if the ball will hit the bat
-def will_hit_bat(x, z, x1, z1):
-    if z == 0:
-        return False
-    if x != 0 and ((-z1) / z) >= 0 and x1 != 0:
-        return True
-    return False
+def future_position(x1, y1, z1, vector, n):
+    return x1 + vector[0] * n, y1 + vector[1] * n, z1 + vector[2] * n
 
-# fct that check the next pos of the ball
-def pos_ball(x1, y1, z1, n):
-    posN = (x1 + (n * x),
-            y1 + (n * y),
-            z1 + (n * z)
-            )
-    return (posN)
 
-# _____\/ fcts to calc the angle \/________
+def will_hit_bat(vector, z1):
+    x, y, z = vector
+    return z != 0 and (-z1 / z) >= 0
 
-# fct that calc the angle
-def angle(vector):
-    normVector = norm_vector(vector)
-    if vector[2] / normVector > 1 or vector[2] / normVector < -1:
-        print ("Unable to calculate arccos", sep='', file=sys.stderr)
-        sys.exit(84);
-    arccos = math.acos(vector[2] / normVector)
-    angle = round(180 *(arccos - (math.pi/2)) / math.pi, 2)
-    angle = abs(angle)
-    return (angle)
 
-# fct that calc the vector
-def norm_vector(vector):
-    xvector = vector[0]
-    yvector = vector[1]
-    zvector = vector[2]
-    return (math.sqrt(xvector**2 + yvector**2 + zvector**2))
+def norm(vector):
+    return math.sqrt(sum(comp ** 2 for comp in vector))
 
-# _________________________________________
 
-    # _____________________________________
+def compute_angle(vector):
+    x, y, z = vector
+    norm_vector = norm(vector)
+    if norm_vector == 0:
+        return 0
+    angle_rad = math.asin(abs(z) / norm_vector)
+    
+    angle_deg = math.degrees(angle_rad)
+    return angle_deg
 
-    # _____\/ PRINT \/_____________________
+def print_results(vector, future_pos, n, z1, angle=None):
+    print("The velocity vector of the ball is:")
+    print(f"({vector[0]:.2f}, {vector[1]:.2f}, {vector[2]:.2f})")
+    print(f"At time t + {n}, ball coordinates will be:")
+    print(f"({future_pos[0]:.2f}, {future_pos[1]:.2f}, {future_pos[2]:.2f})")
+    if angle is not None and z1 != 0:
+        print("The incidence angle is:")
+        print(f"{angle:.2f} degrees")
+    else:
+        print("The ball won't reach the paddle.")
 
-# print coordinate velocity vector
-print("The velocity vector of the ball is:\n(",
-      format(vector[0], ".2f"),
-      ', ',
-      format(vector[1], ".2f"),
-      ', ',
-      format(vector[2], ".2f"),
-      ')',
-      sep='')
 
-# print coordinate t + n
-tn = pos_ball(x1, y1, z1, n)
-print("At time t + ", (int)(n), ", ball coordinates will be:\n(",
-      format(tn[0], ".2f"),
-      ', ',
-      format(tn[1], ".2f"),
-      ', ',
-      format(tn[2], ".2f"),
-      ')',
-      sep='')
+def main():
+    (x0, y0, z0, x1, y1, z1), n = parse_arguments()
+    vector = compute_vector(x0, y0, z0, x1, y1, z1)
+    future_pos = future_position(x1, y1, z1, vector, n)
+    if will_hit_bat(vector, z1):
+        angle = compute_angle(vector)
+        print_results(vector, future_pos, n, z1, angle)
+    else:
+        print_results(vector, future_pos, n, z1)
 
-# print incidence angle... or not
-if will_hit_bat(x, z, x1, z1):
-    angle = angle(vector)
-    print("The incidence angle is:\n", f"{angle:.2f}", " degrees", sep='')
-else:
-    print("The ball won't reach the paddle.", sep='')
 
-    # ______________________________________
+if __name__ == "__main__":
+    main()

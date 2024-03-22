@@ -11,7 +11,8 @@
 | Project | Description | Link |
 | ------- | ----------- | ---- |
 | C Pool | Epitech C pool with a mini lib | [C POOL](https://github.com/Leorevoir/Epitech-projects/tree/main/Tek1/cpool) |
-| CPE | Epitech C CPE algorithms projects | [MATHS](https://github.com/Leorevoir/Epitech-projects/tree/main/Tek1/CPE) |
+| CPE | Epitech C CPE algorithms projects | [CPE](https://github.com/Leorevoir/Epitech-projects/tree/main/Tek1/CPE) |
+| PSU | Epitech C Programming System Unix projects | [PSU](https://github.com/Leorevoir/Epitech-projects/tree/main/Tek1/PSU) |
 | GRAPHICS | Epitech CSFML graphics projects | [CSFML](https://github.com/Leorevoir/Epitech-projects/tree/main/Tek1/CSFML) |
 | Maths | Epitech python maths projects | [MATHS](https://github.com/Leorevoir/Epitech-projects/tree/main/Tek1/maths) |
 

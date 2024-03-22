@@ -1,4 +1,4 @@
-# EPITECH - MATHS
+# EPITECH - CSFML
 
 > Welcome to my Epitech's CSFML projects repository!
 > This repository showcases a collection of my graphics projects throughout my journey at Epitech.

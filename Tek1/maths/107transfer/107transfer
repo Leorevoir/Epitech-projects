@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+##
+## EPITECH PROJECT, 2024
+## Epitech-projects
+## File description:
+## 107transfer
+##
+
+import sys
+
+#___________USAGE____________________________________________________________
+
+def usage():
+    print("USAGE")
+    print("    ./107transfer [num den]+")
+    print("\nDESCRIPTION")
+    print("    num    polynomial numerator defined by its coefficients")
+    print("    den    polynomial denominator defined by its coefficients")
+    exit(0)
+
+#__________HANDLE_ERROR______________________________________________________
+
+def handle_error(args):
+    try:
+        [int(x) for x in args]
+    except ValueError:
+        print("ERROR: numbers must be integers")
+        exit(84)
+
+#__________CALC_FUNCTION_____________________________________________________
+
+def calc_function(args):
+    for x in range(0, 1001):
+        tot = 1
+        for i in range(1, len(args), 2):
+            num = [int(x) for x in args[i].split('*')]
+            den = [int(x) for x in args[i + 1].split('*')]
+            num.append('s')
+            den.append('s')
+            index = 0
+            tot_num = 0
+            tot_den = 0
+            while num[index] != 's':
+                tot_num += float(num[index]) * ((x / 1000)**index)
+                index += 1
+            index = 0
+            while den[index] != 's':
+                tot_den += float(den[index]) * ((x / 1000)**index)
+                index += 1
+
+            if tot_den != 0:
+                tot *= tot_num / tot_den
+            else:
+                exit(84)
+
+        print(f"{(x / 1000):.3f} -> {tot:.5f}")
+
+#__________PARSE_ARGS________________________________________________________
+
+def parse_args(av):
+    for i in range(1, len(av)):
+        arg = [x for x in sys.argv[i].split('*')]
+        handle_error(arg)
+
+#__________MAIN______________________________________________________________
+
+def main():
+    if len(sys.argv) == 2 and sys.argv[1] == "-h":
+        return usage()
+    elif len(sys.argv) % 2 != 0 and len(sys.argv) != 1:
+        parse_args(sys.argv)
+        calc_function(sys.argv)
+    else:
+        print("ERROR: please make './107transfer -h' to see usage")
+        exit(84)
+
+#____________________________________________________________________________
+
+if __name__ == "__main__":
+    main()

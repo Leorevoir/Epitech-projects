@@ -2,6 +2,7 @@
 
 > Welcome to my Epitech's maths projects repository!
 > This repository showcases a collection of my maths projects throughout my journey at Epitech.
+> All these projects were carried out in pairs with Raphaël PETREQUIN
 
 
 ## List of Projects

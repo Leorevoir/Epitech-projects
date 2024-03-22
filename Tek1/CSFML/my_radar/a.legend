@@ -1,0 +1,35 @@
+my_radar project involves creating a radar simulation program in C using CSFML.
+this program simulates the movement of airplanes and their interactions with control towers on a radar screen.
+airplanes are represented with their positions, velocities, and other flight parameters.
+control towers have specific locations and influence the airplanes' status.
+
+key features of the program:
+
+the simulation includes:
+    - planes with defined paths
+    - velocities
+    - statuses such (such as landed or exploded)
+
+control towers in the simulation have:
+    - a set radius and can detect planes
+    - when a plane enters a tower's radius, it's considered safe
+    - if planes collide outside the radius, they explode
+
+interactions:
+    - press 'L' to show/hide hitboxes
+    - press 'S' to show/hide hitboxes
+
+the simulation is visualized in a CSFML window, displaying planes, towers, and their interactions.
+
+my_radar detects collisions between planes and changes their status to exploded if they collide outside the safety radius of towers
+during the simulation, statistics like the number of planes that landed safely and those that exploded are displayed.
+the program includes proper memory management to prevent leaks and handles errors effectively.
+my version of my_radar has no memory leaks.
+
+you can use the generator.py that you can find in the \tests folder to generates map for my_radar
+    - try "python generator.py -h" for help
+    - or you can use the given tests maps in the \tests folder
+
+you can find my_radar usage by compiling the project with :
+    - "make" or "make re"
+    - then "./my_radar -h" for usage

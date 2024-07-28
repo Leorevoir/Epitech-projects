@@ -1,0 +1,15 @@
+#!./42sh
+
+set x = 5
+
+@ y = (3 + 2) *$x
+
+echo "x = $x"
+echo "y = $x"
+
+if ($x < $y) then
+    echo "$y est > à $x"
+endif
+
+
+
